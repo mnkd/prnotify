@@ -15,11 +15,13 @@ var app App
 
 func init() {
 	var index int
+	var rich bool
 	flag.IntVar(&index, "swi", 0, "Slack Webhooks Index (default: 0)")
+	flag.BoolVar(&rich, "rich", false, "Use rich format (default: false)")
 	flag.Parse()
 
 	// Prepare config
-	config, err := NewConfig(index)
+	config, err := NewConfig(index, rich)
 	if err != nil {
 		os.Exit(ExitCodeError)
 	}

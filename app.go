@@ -19,6 +19,23 @@ func (app App) Run() int {
 		return ExitCodeError
 	}
 
+	if app.Config.RichFormat {
+		payload := app.GitHubAPI.SlackPayload(pulls)
+		payload.Channel = app.Slack.Channel
+		payload.Username = app.Slack.Username
+		payload.IconEmoji = app.Slack.IconEmoji
+		payload.LinkNames = true
+
+		err = app.Slack.PostPayload(payload)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "[Error] Could not send a payload to slack:", err)
+			return ExitCodeError
+		}
+
+		return ExitCodeOK
+	}
+
+	// Plain text
 	message := app.GitHubAPI.SlackMessage(pulls)
 	if len(message) == 0 {
 		fmt.Fprintln(os.Stdout, "No message.")

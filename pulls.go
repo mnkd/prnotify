@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/m-nakada/slackposter"
 )
 
 type GitHubAPI struct {
@@ -45,13 +47,25 @@ type PullRequest struct {
 	} `json:"user"`
 }
 
-func (pr PullRequest) SlackMessage(usersMap UsersMap) string {
-	var str = fmt.Sprintf("\t<%s|#%d, %s>", pr.HTMLURL, pr.Number, pr.Title)
-
-	if len(pr.Assignees) > 0 {
-		str += " => "
+func (pr PullRequest) SlackAttachment(usersMap UsersMap) slackposter.Attachment {
+	attachment := slackposter.Attachment{
+		Fallback: fmt.Sprintf("#%d, %s (%s)", pr.Number, pr.Title, pr.HTMLURL, pr.assigneesString(usersMap, true)),
+		Text:     pr.titleString() + " " + pr.assigneesString(usersMap, true),
+		Color:    "warning",
 	}
 
+	return attachment
+}
+
+func (pr PullRequest) titleString() string {
+	return fmt.Sprintf("\t<%s|#%d, %s>", pr.HTMLURL, pr.Number, pr.Title)
+}
+
+func (pr PullRequest) assigneesString(usersMap UsersMap, needsArrow bool) string {
+	var str = ""
+	if needsArrow && len(pr.Assignees) > 0 {
+		str += " => "
+	}
 	for _, assignee := range pr.Assignees {
 		name := assignee.Login
 		if v, ok := usersMap[assignee.Login]; ok {
@@ -60,6 +74,12 @@ func (pr PullRequest) SlackMessage(usersMap UsersMap) string {
 		str += "@" + name + " "
 	}
 
+	return str
+}
+
+func (pr PullRequest) SlackMessage(usersMap UsersMap) string {
+	var str = pr.titleString()
+	str += pr.assigneesString(usersMap, true)
 	str += "\n"
 	return str
 }
@@ -68,11 +88,7 @@ func isWIP(title string) bool {
 	return strings.Contains(strings.ToUpper(title), "WIP")
 }
 
-func (gh GitHubAPI) SlackMessage(pulls []PullRequest) string {
-	if len(pulls) == 0 {
-		return ""
-	}
-
+func filterdPulls(pulls []PullRequest) []PullRequest {
 	var array []PullRequest
 	for _, pull := range pulls {
 		if isWIP(pull.Title) {
@@ -80,9 +96,50 @@ func (gh GitHubAPI) SlackMessage(pulls []PullRequest) string {
 		}
 		array = append(array, pull)
 	}
+	return array
+}
 
-	var str = fmt.Sprintf("I found %d open pull requests for %s/%s:\n", len(array), gh.Owner, gh.Repo)
-	for _, pull := range array {
+func headerString(owner string, repo string, pullsCount int) string {
+	switch pullsCount {
+	case 0:
+		return "0"
+	case 1:
+		return "1"
+	default:
+		break
+	}
+	return fmt.Sprintf("I found %d open pull requests for %s/%s:\n", pullsCount, owner, repo)
+}
+
+func (gh GitHubAPI) SlackPayload(pulls []PullRequest) slackposter.Payload {
+	var payload slackposter.Payload
+
+	if len(pulls) == 0 {
+		return payload
+	}
+
+	filterd := filterdPulls(pulls)
+	var attachments []slackposter.Attachment
+
+	for _, pull := range filterd {
+		attachment := pull.SlackAttachment(gh.UsersMap)
+		attachments = append(attachments, attachment)
+	}
+
+	payload.Text = headerString(gh.Owner, gh.Repo, len(filterd))
+	payload.Attachments = attachments
+
+	return payload
+}
+
+func (gh GitHubAPI) SlackMessage(pulls []PullRequest) string {
+	if len(pulls) == 0 {
+		return ""
+	}
+
+	filterd := filterdPulls(pulls)
+	var str = headerString(gh.Owner, gh.Repo, len(filterd))
+	for _, pull := range filterd {
 		str += pull.SlackMessage(gh.UsersMap)
 	}
 	return str
