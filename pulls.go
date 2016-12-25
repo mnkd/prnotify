@@ -125,6 +125,10 @@ func (gh GitHubAPI) GetPulls() ([]PullRequest, error) {
 	return pulls, nil
 }
 
-func NewGitHubAPI() GitHubAPI {
-	return GitHubAPI{}
+func NewGitHubAPI(config Config) GitHubAPI {
+	var gh = GitHubAPI{}
+	gh.AccessToken = config.GitHub.AccessToken
+	gh.Owner = config.GitHub.Owner
+	gh.Repo = config.GitHub.Repo
+	return gh
 }
