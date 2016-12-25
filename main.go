@@ -19,11 +19,10 @@ func init() {
 	flag.Parse()
 
 	// Prepare config
-	config, err := NewConfig()
+	config, err := NewConfig(index)
 	if err != nil {
 		os.Exit(ExitCodeError)
 	}
-	config.SlackWebhooksIndex = index
 
 	// Prepare app
 	app, err = NewApp(config)

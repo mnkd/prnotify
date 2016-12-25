@@ -54,8 +54,9 @@ func (config *Config) validate() error {
 	return nil
 }
 
-func NewConfig() (Config, error) {
+func NewConfig(slackWebhooksIndex int) (Config, error) {
 	var config Config
+	config.SlackWebhooksIndex = slackWebhooksIndex
 
 	usr, err := user.Current()
 	if err != nil {
