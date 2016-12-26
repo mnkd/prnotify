@@ -89,7 +89,7 @@ func filterdPulls(pulls []PullRequest) []PullRequest {
 	return array
 }
 
-func headerString(owner string, repo string, pullsCount int) string {
+func summaryString(owner string, repo string, pullsCount int) string {
 	url := "https://github.com/" + owner + "/" + repo
 	link := fmt.Sprintf("<%s|%s/%s>", url, owner, repo)
 
@@ -120,7 +120,7 @@ func (gh GitHubAPI) SlackPayload(pulls []PullRequest) slackposter.Payload {
 		attachments = append(attachments, attachment)
 	}
 
-	payload.Text = headerString(gh.Owner, gh.Repo, len(filterd))
+	payload.Text = summaryString(gh.Owner, gh.Repo, len(filterd))
 	payload.Attachments = attachments
 
 	return payload
@@ -132,7 +132,7 @@ func (gh GitHubAPI) SlackMessage(pulls []PullRequest) string {
 	}
 
 	filterd := filterdPulls(pulls)
-	var str = headerString(gh.Owner, gh.Repo, len(filterd))
+	var str = summaryString(gh.Owner, gh.Repo, len(filterd))
 	for _, pull := range filterd {
 		str += pull.SlackMessage(gh.UsersMap)
 	}
