@@ -20,30 +20,20 @@ type GitHubAPI struct {
 
 type PullRequest struct {
 	Assignees []struct {
-		ID    int64  `json:"id"`
 		Login string `json:"login"`
-		Type  string `json:"type"`
-		URL   string `json:"url"`
 	} `json:"assignees"`
-	Body      string      `json:"body"`
 	ClosedAt  interface{} `json:"closed_at"`
 	CreatedAt string      `json:"created_at"`
-	DiffURL   string      `json:"diff_url"`
 	HTMLURL   string      `json:"html_url"`
 	ID        int64       `json:"id"`
 	IssueURL  string      `json:"issue_url"`
-	MergedAt  interface{} `json:"merged_at"`
-	Milestone interface{} `json:"milestone"`
 	Number    int64       `json:"number"`
 	State     string      `json:"state"`
 	Title     string      `json:"title"`
 	UpdatedAt string      `json:"updated_at"`
 	URL       string      `json:"url"`
 	User      struct {
-		ID    int64  `json:"id"`
 		Login string `json:"login"`
-		Type  string `json:"type"`
-		URL   string `json:"url"`
 	} `json:"user"`
 }
 
