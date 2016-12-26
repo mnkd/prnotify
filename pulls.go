@@ -48,7 +48,7 @@ func (pr PullRequest) SlackAttachment(usersMap UsersMap) slackposter.Attachment 
 }
 
 func (pr PullRequest) titleString() string {
-	return fmt.Sprintf("\t<%s|#%d, %s>", pr.HTMLURL, pr.Number, pr.Title)
+	return fmt.Sprintf("\t<%s|#%d, %s> by @%s", pr.HTMLURL, pr.Number, pr.Title, pr.User.Login)
 }
 
 func (pr PullRequest) assigneesString(usersMap UsersMap, needsArrow bool) string {
