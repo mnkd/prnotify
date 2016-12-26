@@ -100,15 +100,19 @@ func filterdPulls(pulls []PullRequest) []PullRequest {
 }
 
 func headerString(owner string, repo string, pullsCount int) string {
+	url := "https://github.com/" + owner + "/" + repo
+	link := fmt.Sprintf("<%s|%s/%s>", url, owner, repo)
+
+	var summary string
 	switch pullsCount {
 	case 0:
-		return "0"
+		summary = fmt.Sprintf("There's no open pull request for %s :tada: Let's take a break :dango: :tea:", link)
 	case 1:
-		return "1"
+		summary = fmt.Sprintf("There's only one open pull request for %s :point_up:", link)
 	default:
-		break
+		summary = fmt.Sprintf("I found %d open pull requests for %s:\n", pullsCount, link)
 	}
-	return fmt.Sprintf("I found %d open pull requests for %s/%s:\n", pullsCount, owner, repo)
+	return summary
 }
 
 func (gh GitHubAPI) SlackPayload(pulls []PullRequest) slackposter.Payload {
