@@ -55,7 +55,7 @@ func (config *Config) validate() error {
 	return nil
 }
 
-func NewConfig(slackWebhooksIndex int, rich bool) (Config, error) {
+func NewConfig(path string, slackWebhooksIndex int, rich bool) (Config, error) {
 	var config Config
 	config.SlackWebhooksIndex = slackWebhooksIndex
 	config.RichFormat = rich
@@ -66,7 +66,17 @@ func NewConfig(slackWebhooksIndex int, rich bool) (Config, error) {
 		return config, err
 	}
 
-	path := filepath.Join(usr.HomeDir, "/.config/prnotify/config.json")
+	if len(path) == 0 {
+		path = filepath.Join(usr.HomeDir, "/.config/prnotify/config.json")
+	} else {
+		p, err := filepath.Abs(path)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "[Error] Could not return absolute representation of path:", err, path)
+			return config, err
+		}
+		path = p
+	}
+
 	str, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "[Error] Could not read config.json:", err)
