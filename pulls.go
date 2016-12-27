@@ -11,13 +11,6 @@ import (
 	"github.com/m-nakada/slackposter"
 )
 
-type GitHubAPI struct {
-	AccessToken string
-	Owner       string
-	Repo        string
-	UsersMap    UsersMap
-}
-
 type PullRequest struct {
 	Assignees []struct {
 		Login string `json:"login"`
@@ -35,6 +28,14 @@ type PullRequest struct {
 	User      struct {
 		Login string `json:"login"`
 	} `json:"user"`
+	Links struct {
+		Comments struct {
+			Href string `json:"href"`
+		} `json:"comments"`
+		ReviewComments struct {
+			Href string `json:"href"`
+		} `json:"review_comments"`
+	} `json:"_links"`
 }
 
 func (pr PullRequest) SlackAttachment(usersMap UsersMap) slackposter.Attachment {
@@ -139,15 +140,11 @@ func (gh GitHubAPI) SlackMessage(pulls []PullRequest) string {
 	return str
 }
 
-func (gh GitHubAPI) urlString() string {
-	return "https://api.github.com/repos/" + gh.Owner + "/" + gh.Repo + "/pulls" + "?access_token=" + gh.AccessToken
-}
-
 func (gh GitHubAPI) GetPulls() ([]PullRequest, error) {
 	var pulls []PullRequest
 
 	// Prepare HTTP Request
-	url := gh.urlString()
+	url := "https://api.github.com/repos/" + gh.Owner + "/" + gh.Repo + "/pulls" + "?access_token=" + gh.AccessToken
 	req, err := http.NewRequest("GET", url, nil)
 
 	parseFormErr := req.ParseForm()
@@ -174,12 +171,4 @@ func (gh GitHubAPI) GetPulls() ([]PullRequest, error) {
 	}
 
 	return pulls, nil
-}
-
-func NewGitHubAPI(config Config) GitHubAPI {
-	var gh = GitHubAPI{}
-	gh.AccessToken = config.GitHub.AccessToken
-	gh.Owner = config.GitHub.Owner
-	gh.Repo = config.GitHub.Repo
-	return gh
 }

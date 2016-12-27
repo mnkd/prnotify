@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/m-nakada/slackposter"
 )
@@ -17,6 +18,42 @@ func (app App) Run() int {
 	pulls, err := app.GitHubAPI.GetPulls()
 	if err != nil {
 		return ExitCodeError
+	}
+
+	// var filterdPulls []PullRequest
+
+	for _, pull := range pulls {
+		if strings.Contains(strings.ToUpper(pull.Title), "WIP") {
+			continue
+		}
+
+		fmt.Fprintf(os.Stdout, "#%d", pull.Number)
+		comments, err := app.GitHubAPI.GetCommentsWithPullRequest(pull)
+		if err != nil {
+			return ExitCodeError
+		}
+
+		thumbsUp := 0
+		for _, comment := range comments {
+			if strings.Contains(comment.Body, ":+1:") || strings.Contains(comment.Body, "👍") {
+				// fmt.Fprintln(os.Stdout, comment.Body)
+				thumbsUp += 1
+			}
+		}
+
+		switch thumbsUp {
+		case 0:
+			fmt.Fprintln(os.Stdout, " => Hurry!!!")
+		case 1:
+			fmt.Fprintln(os.Stdout, " => 👍")
+		case 2:
+			fmt.Fprintln(os.Stdout, " => 👍👍")
+		default:
+			fmt.Fprintln(os.Stdout, " => 👍👍👍👍👍👍")
+			break
+		}
+
+		// fmt.Fprintln(os.Stdout, "\n")
 	}
 
 	if app.Config.RichFormat {
