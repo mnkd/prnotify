@@ -9,79 +9,63 @@ import (
 )
 
 type App struct {
-	Config    Config
-	Slack     slackposter.Slack
-	GitHubAPI GitHubAPI
+	Config       Config
+	Slack        slackposter.Slack
+	GitHubAPI    GitHubAPI
+	UsersManager UsersManager
 }
 
-func (app App) Run() int {
+func (app App) ActivePullRequests() ([]PullRequest, error) {
 	pulls, err := app.GitHubAPI.GetPulls()
 	if err != nil {
-		return ExitCodeError
+		return pulls, err
 	}
 
-	// var filterdPulls []PullRequest
-
+	var activePulls []PullRequest
 	for _, pull := range pulls {
 		if strings.Contains(strings.ToUpper(pull.Title), "WIP") {
 			continue
 		}
+		activePulls = append(activePulls, pull)
+	}
+	return activePulls, nil
+}
 
-		fmt.Fprintf(os.Stdout, "#%d", pull.Number)
+func (app App) Run() int {
+
+	// Build Payload
+	builder := NewMessageBuilder(app.GitHubAPI, app.UsersManager)
+
+	var payload slackposter.Payload
+	payload.Channel = app.Slack.Channel
+	payload.Username = app.Slack.Username
+	payload.IconEmoji = app.Slack.IconEmoji
+	payload.LinkNames = true
+	payload.Mrkdwn = true
+
+	pulls, err := app.ActivePullRequests()
+	if err != nil {
+		return ExitCodeError
+	}
+
+	payload.Text = builder.BudildSummary(len(pulls))
+
+	var attachments []slackposter.Attachment
+	for _, pull := range pulls {
+		fmt.Fprintf(os.Stdout, "#%d\n", pull.Number)
 		comments, err := app.GitHubAPI.GetCommentsWithPullRequest(pull)
 		if err != nil {
 			return ExitCodeError
 		}
 
-		thumbsUp := 0
-		for _, comment := range comments {
-			if strings.Contains(comment.Body, ":+1:") || strings.Contains(comment.Body, "👍") {
-				// fmt.Fprintln(os.Stdout, comment.Body)
-				thumbsUp += 1
-			}
-		}
-
-		switch thumbsUp {
-		case 0:
-			fmt.Fprintln(os.Stdout, " => Hurry!!!")
-		case 1:
-			fmt.Fprintln(os.Stdout, " => 👍")
-		case 2:
-			fmt.Fprintln(os.Stdout, " => 👍👍")
-		default:
-			fmt.Fprintln(os.Stdout, " => 👍👍👍👍👍👍")
-			break
-		}
-
-		// fmt.Fprintln(os.Stdout, "\n")
+		attachment := builder.BuildAttachment(pull, comments)
+		attachments = append(attachments, attachment)
 	}
+	payload.Attachments = attachments
 
-	if app.Config.RichFormat {
-		payload := app.GitHubAPI.SlackPayload(pulls)
-		payload.Channel = app.Slack.Channel
-		payload.Username = app.Slack.Username
-		payload.IconEmoji = app.Slack.IconEmoji
-		payload.LinkNames = true
-
-		err = app.Slack.PostPayload(payload)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "[Error] Could not send a payload to slack:", err)
-			return ExitCodeError
-		}
-
-		return ExitCodeOK
-	}
-
-	// Plain text
-	message := app.GitHubAPI.SlackMessage(pulls)
-	if len(message) == 0 {
-		fmt.Fprintln(os.Stdout, "No message.")
-		return ExitCodeOK
-	}
-
-	err = app.Slack.PostMessage(message)
+	err = app.Slack.PostPayload(payload)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "[Error] Could not send a message to slack:", err)
+		fmt.Fprintln(os.Stderr, "[Error] Could not send a payload to slack:", err)
 		return ExitCodeError
 	}
 
@@ -94,8 +78,9 @@ func NewApp(config Config) (App, error) {
 	app.Config = config
 
 	app.GitHubAPI = NewGitHubAPI(config)
-	app.GitHubAPI.UsersMap, err = NewUsers("users.json")
+	app.UsersManager, err = NewUsersManager("users.json")
 	app.Slack = slackposter.NewSlack(config.SlackWebhooks[config.SlackWebhooksIndex])
+	// app.Slack.DryRun = true
 
 	return app, err
 }

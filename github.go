@@ -4,7 +4,6 @@ type GitHubAPI struct {
 	AccessToken string
 	Owner       string
 	Repo        string
-	UsersMap    UsersMap
 }
 
 func NewGitHubAPI(config Config) GitHubAPI {

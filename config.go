@@ -29,7 +29,6 @@ type Config struct {
 	} `json:"slack_webhooks"`
 
 	SlackWebhooksIndex int
-	RichFormat         bool
 }
 
 func (config *Config) validate() error {
@@ -55,10 +54,9 @@ func (config *Config) validate() error {
 	return nil
 }
 
-func NewConfig(path string, slackWebhooksIndex int, rich bool) (Config, error) {
+func NewConfig(path string, slackWebhooksIndex int) (Config, error) {
 	var config Config
 	config.SlackWebhooksIndex = slackWebhooksIndex
-	config.RichFormat = rich
 
 	usr, err := user.Current()
 	if err != nil {
