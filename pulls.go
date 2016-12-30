@@ -6,17 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strings"
-
-	"github.com/m-nakada/slackposter"
 )
-
-type GitHubAPI struct {
-	AccessToken string
-	Owner       string
-	Repo        string
-	UsersMap    UsersMap
-}
 
 type PullRequest struct {
 	Assignees []struct {
@@ -35,119 +25,21 @@ type PullRequest struct {
 	User      struct {
 		Login string `json:"login"`
 	} `json:"user"`
-}
-
-func (pr PullRequest) SlackAttachment(usersMap UsersMap) slackposter.Attachment {
-	attachment := slackposter.Attachment{
-		Fallback: fmt.Sprintf("#%d, %s (%s)", pr.Number, pr.Title, pr.HTMLURL, pr.assigneesString(usersMap, true)),
-		Text:     pr.titleString() + " " + pr.assigneesString(usersMap, true),
-		Color:    "warning",
-	}
-
-	return attachment
-}
-
-func (pr PullRequest) titleString() string {
-	return fmt.Sprintf("\t<%s|#%d, %s> by @%s", pr.HTMLURL, pr.Number, pr.Title, pr.User.Login)
-}
-
-func (pr PullRequest) assigneesString(usersMap UsersMap, needsArrow bool) string {
-	var str = ""
-	if needsArrow && len(pr.Assignees) > 0 {
-		str += " => "
-	}
-	for _, assignee := range pr.Assignees {
-		name := assignee.Login
-		if v, ok := usersMap[assignee.Login]; ok {
-			name = v
-		}
-		str += "@" + name + " "
-	}
-
-	return str
-}
-
-func (pr PullRequest) SlackMessage(usersMap UsersMap) string {
-	var str = pr.titleString()
-	str += pr.assigneesString(usersMap, true)
-	str += "\n"
-	return str
-}
-
-func isWIP(title string) bool {
-	return strings.Contains(strings.ToUpper(title), "WIP")
-}
-
-func filterdPulls(pulls []PullRequest) []PullRequest {
-	var array []PullRequest
-	for _, pull := range pulls {
-		if isWIP(pull.Title) {
-			continue
-		}
-		array = append(array, pull)
-	}
-	return array
-}
-
-func summaryString(owner string, repo string, pullsCount int) string {
-	url := "https://github.com/" + owner + "/" + repo
-	link := fmt.Sprintf("<%s|%s/%s>", url, owner, repo)
-
-	var summary string
-	switch pullsCount {
-	case 0:
-		summary = fmt.Sprintf("There's no open pull request for %s :tada: Let's take a break :dango: :tea:", link)
-	case 1:
-		summary = fmt.Sprintf("There's only one open pull request for %s :point_up:", link)
-	default:
-		summary = fmt.Sprintf("I found %d open pull requests for %s:\n", pullsCount, link)
-	}
-	return summary
-}
-
-func (gh GitHubAPI) SlackPayload(pulls []PullRequest) slackposter.Payload {
-	var payload slackposter.Payload
-
-	if len(pulls) == 0 {
-		return payload
-	}
-
-	filterd := filterdPulls(pulls)
-	var attachments []slackposter.Attachment
-
-	for _, pull := range filterd {
-		attachment := pull.SlackAttachment(gh.UsersMap)
-		attachments = append(attachments, attachment)
-	}
-
-	payload.Text = summaryString(gh.Owner, gh.Repo, len(filterd))
-	payload.Attachments = attachments
-
-	return payload
-}
-
-func (gh GitHubAPI) SlackMessage(pulls []PullRequest) string {
-	if len(pulls) == 0 {
-		return ""
-	}
-
-	filterd := filterdPulls(pulls)
-	var str = summaryString(gh.Owner, gh.Repo, len(filterd))
-	for _, pull := range filterd {
-		str += pull.SlackMessage(gh.UsersMap)
-	}
-	return str
-}
-
-func (gh GitHubAPI) urlString() string {
-	return "https://api.github.com/repos/" + gh.Owner + "/" + gh.Repo + "/pulls" + "?access_token=" + gh.AccessToken
+	Links struct {
+		Comments struct {
+			Href string `json:"href"`
+		} `json:"comments"`
+		ReviewComments struct {
+			Href string `json:"href"`
+		} `json:"review_comments"`
+	} `json:"_links"`
 }
 
 func (gh GitHubAPI) GetPulls() ([]PullRequest, error) {
 	var pulls []PullRequest
 
 	// Prepare HTTP Request
-	url := gh.urlString()
+	url := "https://api.github.com/repos/" + gh.Owner + "/" + gh.Repo + "/pulls" + "?access_token=" + gh.AccessToken
 	req, err := http.NewRequest("GET", url, nil)
 
 	parseFormErr := req.ParseForm()
@@ -174,12 +66,4 @@ func (gh GitHubAPI) GetPulls() ([]PullRequest, error) {
 	}
 
 	return pulls, nil
-}
-
-func NewGitHubAPI(config Config) GitHubAPI {
-	var gh = GitHubAPI{}
-	gh.AccessToken = config.GitHub.AccessToken
-	gh.Owner = config.GitHub.Owner
-	gh.Repo = config.GitHub.Repo
-	return gh
 }

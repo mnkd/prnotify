@@ -10,12 +10,24 @@ import (
 
 type UsersMap map[string]string
 
+type UsersManager struct {
+	UsersMap UsersMap
+}
+
 func exists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
 }
 
-func NewUsers(path string) (UsersMap, error) {
+func (manager UsersManager) ConvertGitHubToSlack(name string) string {
+	var username = name
+	if v, ok := manager.UsersMap[name]; ok {
+		username = v
+	}
+	return username
+}
+
+func NewUsersMap(path string) (UsersMap, error) {
 	var users UsersMap
 	abs, err := filepath.Abs(path)
 
@@ -35,4 +47,14 @@ func NewUsers(path string) (UsersMap, error) {
 	}
 
 	return users, nil
+}
+
+func NewUsersManager(path string) (UsersManager, error) {
+	var manager = UsersManager{}
+	var err error
+	manager.UsersMap, err = NewUsersMap(path)
+	if err != nil {
+		return manager, err
+	}
+	return manager, nil
 }
