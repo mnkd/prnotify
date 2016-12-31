@@ -13,14 +13,14 @@ type MessageBuilder struct {
 }
 
 func (builder MessageBuilder) titleString(pull PullRequest) string {
-	username := builder.UsersManager.ConvertGitHubToSlack(pull.User.Login)
-	return fmt.Sprintf("\t<%s|[#%d, %s]> by `%s`",
-		pull.HTMLURL, pull.Number, pull.Title, username)
+	return fmt.Sprintf("\t<%s|#%d> %s by %s",
+		pull.HTMLURL, pull.Number, pull.Title, pull.User.Login)
 }
 
 func (builder MessageBuilder) allAssigneeString(pull PullRequest) string {
 	if len(pull.Assignees) == 0 {
-		return "*アサインお願いします*"
+		name := builder.UsersManager.ConvertGitHubToSlack(pull.User.Login)
+		return "@" + name + " *Assignee の指定をお願いします*"
 	}
 
 	var str = ""
@@ -81,7 +81,7 @@ func (builder MessageBuilder) BuildAttachment(pull PullRequest, comments []Comme
 	var color, reaction, mention string
 	switch len(thumbsUppers) {
 	case 0:
-		reaction = ":fearful:"
+		reaction = ""
 		color = "danger"
 		name := builder.allAssigneeString(pull)
 		mention = "=> " + name
@@ -89,15 +89,15 @@ func (builder MessageBuilder) BuildAttachment(pull PullRequest, comments []Comme
 		reaction = ":+1:"
 		color = "warning"
 		name := builder.reviewerString(pull, thumbsUppers)
-		mention = " => " + name
+		mention = "=> " + name
 	default:
-		reaction = ":+1: :+1:"
+		reaction = ":+1::+1:"
 		color = "good"
 		name := "@" + builder.UsersManager.ConvertGitHubToSlack(pull.User.Login)
-		mention = name + "*マージお願いします*"
+		mention = name + " *マージお願いします*"
 	}
 
-	var message = title + " | " + reaction + " | " + mention
+	var message = title + " " + reaction + "\n" + mention
 
 	var attachment slackposter.Attachment
 	attachment = slackposter.Attachment{
