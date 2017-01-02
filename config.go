@@ -23,8 +23,8 @@ type Config struct {
 	} `json:"github"`
 	SlackWebhooks []struct {
 		Channel    string `json:"channel"`
-		Username   string `json:"username"`
 		IconEmoji  string `json:"icon_emoji"`
+		Username   string `json:"username"`
 		WebhookUrl string `json:"webhook_url"`
 	} `json:"slack_webhooks"`
 

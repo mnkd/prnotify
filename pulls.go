@@ -10,7 +10,8 @@ import (
 
 type PullRequest struct {
 	Assignees []struct {
-		Login string `json:"login"`
+		AvatarUrl string `json:"avatar_url"`
+		Login     string `json:"login"`
 	} `json:"assignees"`
 	ClosedAt  interface{} `json:"closed_at"`
 	CreatedAt string      `json:"created_at"`
@@ -23,7 +24,8 @@ type PullRequest struct {
 	UpdatedAt string      `json:"updated_at"`
 	URL       string      `json:"url"`
 	User      struct {
-		Login string `json:"login"`
+		AvatarUrl string `json:"avatar_url"`
+		Login     string `json:"login"`
 	} `json:"user"`
 	Links struct {
 		Comments struct {
