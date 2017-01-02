@@ -15,6 +15,16 @@ type App struct {
 	UsersManager UsersManager
 }
 
+// Attachments index
+type AttachmentType int
+
+const (
+	MERGE AttachmentType = iota
+	REVIEW_ONE
+	REVIEW_TWO
+	ASSIGNEE
+)
+
 func (app App) ActivePullRequests() ([]PullRequest, error) {
 	pulls, err := app.GitHubAPI.GetPulls()
 	if err != nil {
@@ -32,7 +42,6 @@ func (app App) ActivePullRequests() ([]PullRequest, error) {
 }
 
 func (app App) Run() int {
-
 	// Build Payload
 	builder := NewMessageBuilder(app.GitHubAPI, app.UsersManager)
 
@@ -48,21 +57,36 @@ func (app App) Run() int {
 		return ExitCodeError
 	}
 
+	// Prepare summary
 	payload.Text = builder.BudildSummary(len(pulls))
 
-	var attachments []slackposter.Attachment
+	// Prepare fields for each attachment
+	fieldsMap := make(map[AttachmentType][]slackposter.Field)
 	for _, pull := range pulls {
 		fmt.Fprintf(os.Stdout, "#%d\n", pull.Number)
 		comments, err := app.GitHubAPI.GetCommentsWithPullRequest(pull)
 		if err != nil {
 			return ExitCodeError
 		}
+		field, attachmentType := builder.BuildField(pull, comments)
+		fieldsMap[attachmentType] = append(fieldsMap[attachmentType], field)
+	}
 
-		attachment := builder.BuildAttachment(pull, comments)
+	// Prepare attachments
+	var attachments []slackposter.Attachment
+	for i := MERGE; i < ASSIGNEE+1; i++ {
+		if len(fieldsMap[i]) == 0 {
+			continue
+		}
+
+		attachment := builder.BuildAttachmentWithType(i)
+		attachment.Fields = fieldsMap[i]
+
 		attachments = append(attachments, attachment)
 	}
 	payload.Attachments = attachments
 
+	// Post payload
 	err = app.Slack.PostPayload(payload)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "[Error] Could not send a payload to slack:", err)
