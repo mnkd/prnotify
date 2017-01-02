@@ -12,9 +12,12 @@ type MessageBuilder struct {
 	UsersManager UsersManager
 }
 
-func (builder MessageBuilder) titleString(pull PullRequest) string {
-	return fmt.Sprintf("\t<%s|#%d> %s by %s",
-		pull.HTMLURL, pull.Number, pull.Title, pull.User.Login)
+func (builder MessageBuilder) fieldTitleString(pull PullRequest) string {
+	return fmt.Sprintf("#%d", pull.Number)
+}
+
+func (builder MessageBuilder) fieldValueString(pull PullRequest) string {
+	return fmt.Sprintf("<%s|%s> by %s", pull.HTMLURL, pull.Title, pull.User.Login)
 }
 
 func (builder MessageBuilder) allAssigneeString(pull PullRequest) string {
@@ -31,13 +34,13 @@ func (builder MessageBuilder) allAssigneeString(pull PullRequest) string {
 	return str
 }
 
-func (builder MessageBuilder) reviewerString(pull PullRequest, thumbsUppers []string) string {
+func (builder MessageBuilder) reviewerString(pull PullRequest, reviewdUsers []string) string {
 	var str = ""
 	for _, assignee := range pull.Assignees {
 		assigneeLogin := builder.UsersManager.ConvertGitHubToSlack(assignee.Login)
 		found := false
-		for _, thumbsUpper := range thumbsUppers {
-			if assigneeLogin == thumbsUpper {
+		for _, reviewdUser := range reviewdUsers {
+			if assigneeLogin == reviewdUser {
 				found = true
 				break
 			}
@@ -66,38 +69,64 @@ func (builder MessageBuilder) BudildSummary(pullsCount int) string {
 	return summary
 }
 
-func (builder MessageBuilder) BuildAttachment(pull PullRequest, comments []Comment) slackposter.Attachment {
-
-	var thumbsUppers []string
-
+func (builder MessageBuilder) BuildField(pull PullRequest, comments []Comment) (slackposter.Field, AttachmentType) {
+	var reviewdUsers []string
 	for _, comment := range comments {
 		if strings.Contains(comment.Body, ":+1:") || strings.Contains(comment.Body, "👍") {
 			username := builder.UsersManager.ConvertGitHubToSlack(comment.User.Login)
-			thumbsUppers = append(thumbsUppers, username)
+			reviewdUsers = append(reviewdUsers, username)
 		}
 	}
 
-	title := builder.titleString(pull)
-	var color, reaction, mention string
-	switch len(thumbsUppers) {
-	case 0:
-		reaction = ""
-		color = "danger"
-		name := builder.allAssigneeString(pull)
-		mention = "=> " + name
-	case 1:
-		reaction = ":+1:"
-		color = "warning"
-		name := builder.reviewerString(pull, thumbsUppers)
-		mention = "=> " + name
-	default:
-		reaction = ":+1::+1:"
-		color = "good"
-		name := "@" + builder.UsersManager.ConvertGitHubToSlack(pull.User.Login)
-		mention = name + " *マージお願いします*"
+	var attachmentType AttachmentType
+	title := builder.fieldTitleString(pull)
+	value := builder.fieldValueString(pull)
+	name := ""
+
+	if len(pull.Assignees) == 0 {
+		attachmentType = ASSIGNEE
+		name = "@" + builder.UsersManager.ConvertGitHubToSlack(pull.User.Login)
+	} else {
+		switch len(reviewdUsers) {
+		case 0:
+			attachmentType = REVIEW_TWO
+			name = builder.allAssigneeString(pull)
+		case 1:
+			attachmentType = REVIEW_ONE
+			name = builder.reviewerString(pull, reviewdUsers)
+		default:
+			attachmentType = MERGE
+			name = "@" + builder.UsersManager.ConvertGitHubToSlack(pull.User.Login)
+		}
 	}
 
-	var message = title + " " + reaction + "\n" + mention
+	value = value + " => " + name
+
+	field := slackposter.Field{
+		Title: title,
+		Value: value,
+		Short: false,
+	}
+
+	return field, attachmentType
+}
+
+func (builder MessageBuilder) BuildAttachmentWithType(attachmentType AttachmentType) slackposter.Attachment {
+	var color, message string
+	switch attachmentType {
+	case MERGE:
+		color = "good"
+		message = ":+1::+1: *マージお願いします*"
+	case REVIEW_ONE:
+		color = "warning"
+		message = ":+1: *レビューお願いします！*"
+	case REVIEW_TWO:
+		color = "danger"
+		message = ":wink: *レビューお願いします！*"
+	case ASSIGNEE:
+		color = "danger"
+		message = ":sweat_smile: *Assignee の指定をお願いします！*"
+	}
 
 	var attachment slackposter.Attachment
 	attachment = slackposter.Attachment{
@@ -106,8 +135,10 @@ func (builder MessageBuilder) BuildAttachment(pull PullRequest, comments []Comme
 		Color:    color,
 		Fields:   []slackposter.Field{},
 		MrkdwnIn: []string{"text", "fallback"},
+		// AuthorIcon: "https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png",
+		// AuthorLink: "https://github.com/",
+		// AuthorName: "GitHub",
 	}
-
 	return attachment
 }
 
