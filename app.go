@@ -102,7 +102,7 @@ func NewApp(config Config) (App, error) {
 	app.Config = config
 
 	app.GitHubAPI = NewGitHubAPI(config)
-	app.UsersManager, err = NewUsersManager("users.json")
+	app.UsersManager, err = NewUsersManager()
 	app.Slack = slackposter.NewSlack(config.SlackWebhooks[config.SlackWebhooksIndex])
 	// app.Slack.DryRun = true
 

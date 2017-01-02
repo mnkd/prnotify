@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/user"
 	"path/filepath"
 )
 
@@ -27,32 +28,39 @@ func (manager UsersManager) ConvertGitHubToSlack(name string) string {
 	return username
 }
 
-func NewUsersMap(path string) (UsersMap, error) {
-	var users UsersMap
-	abs, err := filepath.Abs(path)
+func NewUsersMap() (UsersMap, error) {
+	users := make(UsersMap)
 
-	if exists(abs) == false {
+	usr, err := user.Current()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "[Error] Could not get current user:", err)
+		return users, err
+	}
+
+	path := filepath.Join(usr.HomeDir, "/.config/prnotify/users.json")
+	if exists(path) == false {
+		fmt.Fprintln(os.Stderr, "[Warning] File not exists:", path)
 		return users, nil
 	}
 
-	str, err := ioutil.ReadFile(abs)
+	str, err := ioutil.ReadFile(path)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "[ERROR] Could not read users.json:", err)
+		fmt.Fprintln(os.Stderr, "[Error] Could not read users.json:", err)
 		return users, err
 	}
 
 	if err := json.Unmarshal(str, &users); err != nil {
-		fmt.Fprintln(os.Stderr, "[ERROR] JSON unmarshal:", err)
+		fmt.Fprintln(os.Stderr, "[Error] JSON unmarshal:", err)
 		return users, err
 	}
 
 	return users, nil
 }
 
-func NewUsersManager(path string) (UsersManager, error) {
+func NewUsersManager() (UsersManager, error) {
 	var manager = UsersManager{}
 	var err error
-	manager.UsersMap, err = NewUsersMap(path)
+	manager.UsersMap, err = NewUsersMap()
 	if err != nil {
 		return manager, err
 	}
