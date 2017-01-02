@@ -34,15 +34,15 @@ type Config struct {
 func (config *Config) validate() error {
 	// Validate
 	if len(config.GitHub.AccessToken) == 0 {
-		fmt.Fprintln(os.Stderr, "Invalid config.json. You should set github access_token.")
+		fmt.Fprintln(os.Stderr, "Invalid config.json. You should set a github access_token.")
 		return Config_InvalidJsonError
 	}
 	if len(config.GitHub.Owner) == 0 {
-		fmt.Fprintln(os.Stderr, "Invalid config.json. You should set github owner.")
+		fmt.Fprintln(os.Stderr, "Invalid config.json. You should set a github owner.")
 		return Config_InvalidJsonError
 	}
 	if len(config.GitHub.Repo) == 0 {
-		fmt.Fprintln(os.Stderr, "Invalid config.json. You should set github repo.")
+		fmt.Fprintln(os.Stderr, "Invalid config.json. You should set a github repo.")
 		return Config_InvalidJsonError
 	}
 

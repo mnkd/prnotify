@@ -45,12 +45,12 @@ func NewUsersMap() (UsersMap, error) {
 
 	str, err := ioutil.ReadFile(path)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "[ERROR] Could not read users.json:", err)
+		fmt.Fprintln(os.Stderr, "[Error] Could not read users.json:", err)
 		return users, err
 	}
 
 	if err := json.Unmarshal(str, &users); err != nil {
-		fmt.Fprintln(os.Stderr, "[ERROR] JSON unmarshal:", err)
+		fmt.Fprintln(os.Stderr, "[Error] JSON unmarshal:", err)
 		return users, err
 	}
 
