@@ -1,5 +1,5 @@
 NAME     := prnotify
-VERSION  := 0.4.1
+VERSION  := 0.5.0
 REVISION := $(shell git rev-parse --short HEAD)
 SRCS     := $(shell find . -type f -name '*.go')
 LDFLAGS  := -ldflags="-X \"main.Version=$(VERSION)\" -X \"main.Revision=$(REVISION)\""
