@@ -58,12 +58,14 @@ func (app App) Run() int {
 	}
 
 	// Prepare summary
-	payload.Text = builder.BudildSummary(len(pulls))
+	summary := builder.BudildSummary(len(pulls))
+	payload.Text = summary
+	fmt.Fprintf(os.Stdout, "\n%v", summary)
 
 	// Prepare fields for each attachment
 	fieldsMap := make(map[AttachmentType][]slackposter.Field)
-	for _, pull := range pulls {
-		fmt.Fprintf(os.Stdout, "#%d\n", pull.Number)
+	for i, pull := range pulls {
+		fmt.Fprintf(os.Stdout, "%-2d #%d\n", i+1, pull.Number)
 		comments, err := app.GitHubAPI.GetCommentsWithPullRequest(pull)
 		if err != nil {
 			return ExitCodeError
