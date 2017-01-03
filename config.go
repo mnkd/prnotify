@@ -28,6 +28,7 @@ type Config struct {
 		WebhookUrl string `json:"webhook_url"`
 	} `json:"slack_webhooks"`
 
+	DryRun             bool
 	SlackWebhooksIndex int
 }
 
@@ -54,9 +55,10 @@ func (config *Config) validate() error {
 	return nil
 }
 
-func NewConfig(path string, slackWebhooksIndex int) (Config, error) {
+func NewConfig(path string, slackWebhooksIndex int, dryRun bool) (Config, error) {
 	var config Config
 	config.SlackWebhooksIndex = slackWebhooksIndex
+	config.DryRun = dryRun
 
 	usr, err := user.Current()
 	if err != nil {
