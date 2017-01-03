@@ -1,0 +1,16 @@
+{
+  "github": {
+    "access_token": "your access_token",
+    "owner": "owner name",
+    "repo": "repo name"
+  },
+  "channels": [
+    {
+      "team": "your-team",
+      "channel": "#your-project",
+      "username": "GitHub | Pull Requests",
+      "icon_emoji": ":octocat:",
+      "webhook_url": "https://hooks.slack.com/services/xxxxx/xxxxx/xxxxxx"
+    }
+  ]
+}
