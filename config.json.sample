@@ -2,7 +2,10 @@
   "github": {
     "access_token": "your access_token",
     "owner": "owner name",
-    "repo": "repo name"
+    "repo": "repo name",
+    "comment": {
+       "per_page": 100
+    }
   },
   "channels": [
     {

@@ -20,6 +20,9 @@ type Config struct {
 		AccessToken string `json:"access_token"`
 		Owner       string `json:"owner"`
 		Repo        string `json:"repo"`
+		Comment     struct {
+			PerPage int `json:"per_page"`
+		} `json:"comment"`
 	} `json:"github"`
 	SlackWebhooks []struct {
 		Channel    string `json:"channel"`
@@ -46,7 +49,10 @@ func (config *Config) validate() error {
 		fmt.Fprintln(os.Stderr, "Invalid config.json. You should set a github repo.")
 		return Config_InvalidJsonError
 	}
-
+	if config.GitHub.Comment.PerPage < 30 {
+		fmt.Fprintln(os.Stderr, "Invalid value: github.comment.per_page. (min 30)")
+		config.GitHub.Comment.PerPage = 30
+	}
 	if len(config.SlackWebhooks) < config.SlackWebhooksIndex+1 {
 		fmt.Fprintln(os.Stderr, "Invalid slack webhooks index:", config.SlackWebhooksIndex)
 		return Config_InvalidSlackWebhooksIndexError

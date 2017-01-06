@@ -51,24 +51,21 @@ func (gh GitHubAPI) getCommentsWithURL(url string) ([]Comment, error) {
 
 func (gh GitHubAPI) GetCommentsWithPullRequest(pr PullRequest) ([]Comment, error) {
 	var comments []Comment
+	query := fmt.Sprintf("?access_token=%s&per_page=%d", gh.AccessToken, gh.Comment.PerPage)
 
-	// if pr.Comments > 0 {
-	items, err := gh.getCommentsWithURL(pr.Links.Comments.Href + "?access_token=" + gh.AccessToken)
+	items, err := gh.getCommentsWithURL(pr.Links.Comments.Href + query)
 	if err != nil {
 		return comments, err
 	} else {
 		comments = append(comments, items...)
 	}
-	// }
 
-	// if pr.ReviewComments > 0 {
-	items, err = gh.getCommentsWithURL(pr.Links.ReviewComments.Href + "?access_token=" + gh.AccessToken)
+	items, err = gh.getCommentsWithURL(pr.Links.ReviewComments.Href + query)
 	if err == nil {
 		return comments, err
 	} else {
 		comments = append(comments, items...)
 	}
-	// }
 
 	return comments, nil
 }
