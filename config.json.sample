@@ -1,4 +1,8 @@
 {
+  "app": {
+    "use_holiday_jp": true,
+    "use_dayoff": true
+  },
   "github": {
     "access_token": "your access_token",
     "owner": "owner name",

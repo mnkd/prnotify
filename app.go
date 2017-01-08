@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/m-nakada/dayoff"
+	"github.com/m-nakada/holidayJP"
 	"github.com/m-nakada/slackposter"
 )
 
@@ -25,6 +28,14 @@ const (
 	ASSIGNEE
 )
 
+func isHoliday() bool {
+	return holidayJP.IsHoliday(time.Now())
+}
+
+func isDayOff() bool {
+	return dayoff.IsDayOff(time.Now())
+}
+
 func (app App) ActivePullRequests() ([]PullRequest, error) {
 	pulls, err := app.GitHubAPI.GetPulls()
 	if err != nil {
@@ -42,6 +53,16 @@ func (app App) ActivePullRequests() ([]PullRequest, error) {
 }
 
 func (app App) Run() int {
+	if app.Config.App.UseHolidayJP && isHoliday() {
+		fmt.Fprintln(os.Stderr, "It's a holiday.")
+		return ExitCodeError
+	}
+
+	if app.Config.App.UseDayOff && isDayOff() {
+		fmt.Fprintln(os.Stderr, "It's a day off.")
+		return ExitCodeError
+	}
+
 	// Build Payload
 	builder := NewMessageBuilder(app.GitHubAPI, app.UsersManager)
 

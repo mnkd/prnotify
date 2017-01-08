@@ -16,6 +16,10 @@ var (
 )
 
 type Config struct {
+	App struct {
+		UseHolidayJP bool `json:"use_holiday_jp"`
+		UseDayOff    bool `json:"use_dayoff"`
+	} `json:"app"`
 	GitHub struct {
 		AccessToken string `json:"access_token"`
 		Owner       string `json:"owner"`
