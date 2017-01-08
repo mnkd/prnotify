@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	Config_InvalidJsonError               = errors.New("Config_InvalidJsonError")
-	Config_InvalidSlackWebhooksIndexError = errors.New("Config_InvalidSlackWebhooksIndexError")
+	ErrInvalidJson               = errors.New("ErrInvalidJson")
+	ErrInvalidSlackWebhooksIndex = errors.New("ErrInvalidSlackWebhooksIndex")
 )
 
 type Config struct {
@@ -43,15 +43,15 @@ func (config *Config) validate() error {
 	// Validate
 	if len(config.GitHub.AccessToken) == 0 {
 		fmt.Fprintln(os.Stderr, "Invalid config.json. You should set a github access_token.")
-		return Config_InvalidJsonError
+		return ErrInvalidJson
 	}
 	if len(config.GitHub.Owner) == 0 {
 		fmt.Fprintln(os.Stderr, "Invalid config.json. You should set a github owner.")
-		return Config_InvalidJsonError
+		return ErrInvalidJson
 	}
 	if len(config.GitHub.Repo) == 0 {
 		fmt.Fprintln(os.Stderr, "Invalid config.json. You should set a github repo.")
-		return Config_InvalidJsonError
+		return ErrInvalidJson
 	}
 	if config.GitHub.Comment.PerPage < 30 {
 		fmt.Fprintln(os.Stderr, "Invalid value: github.comment.per_page. (min 30)")
@@ -59,7 +59,7 @@ func (config *Config) validate() error {
 	}
 	if len(config.SlackWebhooks) < config.SlackWebhooksIndex+1 {
 		fmt.Fprintln(os.Stderr, "Invalid slack webhooks index:", config.SlackWebhooksIndex)
-		return Config_InvalidSlackWebhooksIndexError
+		return ErrInvalidSlackWebhooksIndex
 	}
 
 	return nil
