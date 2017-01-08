@@ -6,9 +6,9 @@ import (
 )
 
 const (
-	ExitCodeOK        int = iota // 0
-	ExitCodeError                // 1
-	ExitCodeFileError            // 2
+	ExitCodeOK int = iota
+	ExitCodeError
+	ExitCodeFileError
 )
 
 var app App

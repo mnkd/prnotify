@@ -37,12 +37,13 @@ func isDayOff() bool {
 }
 
 func (app App) ActivePullRequests() ([]PullRequest, error) {
+	var activePulls []PullRequest
+
 	pulls, err := app.GitHubAPI.GetPulls()
 	if err != nil {
-		return pulls, err
+		return activePulls, err
 	}
 
-	var activePulls []PullRequest
 	for _, pull := range pulls {
 		if strings.Contains(strings.ToUpper(pull.Title), "WIP") {
 			continue
