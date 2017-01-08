@@ -94,7 +94,7 @@ func NewConfig(path string, slackWebhooksIndex int, dryRun bool) (Config, error)
 	}
 
 	if err := json.Unmarshal(str, &config); err != nil {
-		fmt.Fprintln(os.Stderr, "[Error] JSON Unmarshal:", err)
+		fmt.Fprintln(os.Stderr, "[Error] Config JSON Unmarshal:", err)
 		return config, err
 	}
 

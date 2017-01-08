@@ -50,7 +50,7 @@ func NewUsersMap() (UsersMap, error) {
 	}
 
 	if err := json.Unmarshal(str, &users); err != nil {
-		fmt.Fprintln(os.Stderr, "[Error] JSON unmarshal:", err)
+		fmt.Fprintln(os.Stderr, "[Error] User JSON unmarshal:", err)
 		return users, err
 	}
 

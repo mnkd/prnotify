@@ -42,7 +42,7 @@ func (gh GitHubAPI) getCommentsWithURL(url string) ([]Comment, error) {
 
 	// Decode JSON
 	if err := json.Unmarshal(resBody, &comments); err != nil {
-		fmt.Fprintln(os.Stderr, "[Error] JSON unmarshal:", err)
+		fmt.Fprintln(os.Stderr, "[Error] Comment JSON unmarshal:", err)
 		return comments, err
 	}
 
