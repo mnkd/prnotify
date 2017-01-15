@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/m-nakada/slackposter"
+	"github.com/mnkd/slackposter"
 	"strings"
 )
 

@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/m-nakada/dayoff"
-	"github.com/m-nakada/holidayJP"
-	"github.com/m-nakada/slackposter"
+	"github.com/mnkd/dayoff"
+	"github.com/mnkd/holidayJP"
+	"github.com/mnkd/slackposter"
 )
 
 type App struct {
