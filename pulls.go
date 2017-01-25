@@ -46,7 +46,7 @@ func (gh GitHubAPI) GetPulls() ([]PullRequest, error) {
 
 	parseFormErr := req.ParseForm()
 	if parseFormErr != nil {
-		fmt.Fprintln(os.Stderr, "[Error] Parse HTTP request form:", parseFormErr)
+		fmt.Fprintln(os.Stderr, "GitHubAPI - PullRequest: <error> parse http request form:", parseFormErr)
 		return pulls, parseFormErr
 	}
 
@@ -54,7 +54,7 @@ func (gh GitHubAPI) GetPulls() ([]PullRequest, error) {
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "[Error] Fetch pulls: ", err)
+		fmt.Fprintln(os.Stderr, "GitHubAPI - PullRequest: <error> fetch pulls:", err)
 		return pulls, err
 	}
 
@@ -63,7 +63,7 @@ func (gh GitHubAPI) GetPulls() ([]PullRequest, error) {
 
 	// Decode JSON
 	if err := json.Unmarshal(resBody, &pulls); err != nil {
-		fmt.Fprintln(os.Stderr, "[Error] JSON unmarshal:", err)
+		fmt.Fprintln(os.Stderr, "GitHubAPI - PullRequest: <error> json unmarshal:", err)
 		return pulls, err
 	}
 

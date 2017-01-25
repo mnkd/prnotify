@@ -25,7 +25,7 @@ func (gh GitHubAPI) getCommentsWithURL(url string) ([]Comment, error) {
 
 	parseFormErr := req.ParseForm()
 	if parseFormErr != nil {
-		fmt.Fprintln(os.Stderr, "[Error] Parse HTTP request form:", parseFormErr)
+		fmt.Fprintln(os.Stderr, "GitHubAPI - Comment: <error> parse http request form:", parseFormErr)
 		return comments, parseFormErr
 	}
 
@@ -33,7 +33,7 @@ func (gh GitHubAPI) getCommentsWithURL(url string) ([]Comment, error) {
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "[Error] Fetch comments: ", err, url)
+		fmt.Fprintln(os.Stderr, "GitHubAPI - Comment: <error> fetch comments: ", err, url)
 		return comments, err
 	}
 
@@ -42,7 +42,7 @@ func (gh GitHubAPI) getCommentsWithURL(url string) ([]Comment, error) {
 
 	// Decode JSON
 	if err := json.Unmarshal(resBody, &comments); err != nil {
-		fmt.Fprintln(os.Stderr, "[Error] Comment JSON unmarshal:", err)
+		fmt.Fprintln(os.Stderr, "GitHubAPI - Comment: <error> json unmarshal:", err)
 		return comments, err
 	}
 

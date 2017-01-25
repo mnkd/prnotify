@@ -113,7 +113,7 @@ func (app App) Run() int {
 	// Post payload
 	err = app.Slack.PostPayload(payload)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "[Error] Could not send a payload to slack:", err)
+		fmt.Fprintln(os.Stderr, "App: <error> send a payload to slack:", err)
 		return ExitCodeError
 	}
 

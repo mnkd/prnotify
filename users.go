@@ -33,24 +33,24 @@ func NewUsersMap() (UsersMap, error) {
 
 	usr, err := user.Current()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "[Error] Could not get current user:", err)
+		fmt.Fprintln(os.Stderr, "UsersManager: <error> get current user:", err)
 		return users, err
 	}
 
 	path := filepath.Join(usr.HomeDir, "/.config/prnotify/users.json")
 	if exists(path) == false {
-		fmt.Fprintln(os.Stderr, "[Warning] File not exists:", path)
+		fmt.Fprintln(os.Stderr, "UsersManager: <warning> file not exists:", path)
 		return users, nil
 	}
 
 	str, err := ioutil.ReadFile(path)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "[Error] Could not read users.json:", err)
+		fmt.Fprintln(os.Stderr, "UsersManager: <error> read users.json:", err)
 		return users, err
 	}
 
 	if err := json.Unmarshal(str, &users); err != nil {
-		fmt.Fprintln(os.Stderr, "[Error] User JSON unmarshal:", err)
+		fmt.Fprintln(os.Stderr, "UsersManager: <error> json unmarshal: users.json:", err)
 		return users, err
 	}
 

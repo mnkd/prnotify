@@ -72,7 +72,7 @@ func NewConfig(path string, slackWebhooksIndex int, dryRun bool) (Config, error)
 
 	usr, err := user.Current()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "[Error] Could not get current user:", err)
+		fmt.Fprintln(os.Stderr, "Config: <error> get current user:", err)
 		return config, err
 	}
 
@@ -81,7 +81,7 @@ func NewConfig(path string, slackWebhooksIndex int, dryRun bool) (Config, error)
 	} else {
 		p, err := filepath.Abs(path)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "[Error] Could not return absolute representation of path:", err, path)
+			fmt.Fprintln(os.Stderr, "Config: <error> get absolute representation of path:", err, path)
 			return config, err
 		}
 		path = p
@@ -89,12 +89,12 @@ func NewConfig(path string, slackWebhooksIndex int, dryRun bool) (Config, error)
 
 	str, err := ioutil.ReadFile(path)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "[Error] Could not read config.json:", err)
+		fmt.Fprintln(os.Stderr, "Config: <error> read config.json:", err)
 		return config, err
 	}
 
 	if err := json.Unmarshal(str, &config); err != nil {
-		fmt.Fprintln(os.Stderr, "[Error] Config JSON Unmarshal:", err)
+		fmt.Fprintln(os.Stderr, "Config: <error> json unmarshal: config.json:", err)
 		return config, err
 	}
 
