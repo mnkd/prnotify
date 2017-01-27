@@ -34,13 +34,13 @@ func (builder MessageBuilder) allAssigneeString(pull PullRequest) string {
 	return str
 }
 
-func (builder MessageBuilder) reviewerString(pull PullRequest, reviewdUsers []string) string {
+func (builder MessageBuilder) reviewerString(pull PullRequest, reviewedUsers []string) string {
 	var str = ""
 	for _, assignee := range pull.Assignees {
 		assigneeLogin := builder.UsersManager.ConvertGitHubToSlack(assignee.Login)
 		found := false
-		for _, reviewdUser := range reviewdUsers {
-			if assigneeLogin == reviewdUser {
+		for _, reviewedUser := range reviewedUsers {
+			if assigneeLogin == reviewedUser {
 				found = true
 				break
 			}
@@ -70,11 +70,11 @@ func (builder MessageBuilder) BudildSummary(pullsCount int) string {
 }
 
 func (builder MessageBuilder) BuildField(pull PullRequest, comments []Comment) (slackposter.Field, AttachmentType) {
-	var reviewdUsers []string
+	var reviewedUsers []string
 	for _, comment := range comments {
 		if strings.Contains(comment.Body, ":+1:") || strings.Contains(comment.Body, "👍") {
 			username := builder.UsersManager.ConvertGitHubToSlack(comment.User.Login)
-			reviewdUsers = append(reviewdUsers, username)
+			reviewedUsers = append(reviewedUsers, username)
 		}
 	}
 
@@ -87,13 +87,13 @@ func (builder MessageBuilder) BuildField(pull PullRequest, comments []Comment) (
 		attachmentType = ASSIGNEE
 		name = "@" + builder.UsersManager.ConvertGitHubToSlack(pull.User.Login)
 	} else {
-		switch len(reviewdUsers) {
+		switch len(reviewedUsers) {
 		case 0:
 			attachmentType = REVIEW_TWO
 			name = builder.allAssigneeString(pull)
 		case 1:
 			attachmentType = REVIEW_ONE
-			name = builder.reviewerString(pull, reviewdUsers)
+			name = builder.reviewerString(pull, reviewedUsers)
 		default:
 			attachmentType = MERGE
 			name = "@" + builder.UsersManager.ConvertGitHubToSlack(pull.User.Login)
