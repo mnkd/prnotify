@@ -88,13 +88,24 @@ func (app App) Run() int {
 	fieldsMap := make(map[AttachmentType][]slackposter.Field)
 	for i, pull := range pulls {
 		fmt.Fprintf(os.Stdout, "%-2d #%d\n", i+1, pull.Number)
-		comments, err := app.GitHubAPI.GetCommentsWithPullRequest(pull)
+
+		reviewers, err := app.GitHubAPI.GetRequestedReviewers(pull)
 		if err != nil {
 			return ExitCodeError
 		}
-		field, attachmentType := builder.BuildField(pull, comments)
-		fieldsMap[attachmentType] = append(fieldsMap[attachmentType], field)
+		fmt.Println("reviewers: ", reviewers)
+
+		reviews, err := app.GitHubAPI.GetReviews(pull)
+		if err != nil {
+			return ExitCodeError
+		}
+		fmt.Println("reviews: ", reviews)
+
+		// field, attachmentType := builder.BuildField(pull, comments)
+		// fieldsMap[attachmentType] = append(fieldsMap[attachmentType], field)
 	}
+
+	return ExitCodeOK
 
 	// Prepare attachments
 	var attachments []slackposter.Attachment
