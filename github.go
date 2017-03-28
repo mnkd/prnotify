@@ -17,3 +17,7 @@ func NewGitHubAPI(config Config) GitHubAPI {
 	gh.Comment.PerPage = config.GitHub.Comment.PerPage
 	return gh
 }
+
+func (gh GitHubAPI) BaseURL() string {
+	return "https://api.github.com/repos/" + gh.Owner + "/" + gh.Repo
+}

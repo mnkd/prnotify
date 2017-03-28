@@ -41,7 +41,7 @@ func (gh GitHubAPI) GetPulls() ([]PullRequest, error) {
 	var pulls []PullRequest
 
 	// Prepare HTTP Request
-	url := "https://api.github.com/repos/" + gh.Owner + "/" + gh.Repo + "/pulls" + "?access_token=" + gh.AccessToken
+	url := gh.BaseURL() + "/pulls" + "?access_token=" + gh.AccessToken
 	req, err := http.NewRequest("GET", url, nil)
 
 	parseFormErr := req.ParseForm()
