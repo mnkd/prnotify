@@ -13,7 +13,9 @@ type Review struct {
 	User struct {
 		Login string `json:"login"`
 	} `json:"user"`
-	Body  string `json:"body"`
+	Body string `json:"body"`
+
+	// State: APPROVED, COMMENTED, REQUESTED_CHANGED
 	State string `json:"state"`
 }
 
@@ -52,4 +54,12 @@ func (gh GitHubAPI) GetReviews(pull PullRequest) ([]Review, error) {
 	}
 
 	return reviews, nil
+}
+
+func (review Review) IsApproved() bool {
+	return review.State == "APPROVED"
+}
+
+func (review Review) IsRequestedChanged() bool {
+	return review.State == "REQUESTED_CHANGED"
 }

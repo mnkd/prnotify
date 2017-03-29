@@ -26,6 +26,8 @@ const (
 	REVIEW_ONE
 	REVIEW_TWO
 	ASSIGNEE
+	REVIEWERS
+	REQUEST_CHANGE
 )
 
 func isHoliday() bool {
@@ -65,7 +67,7 @@ func (app App) Run() int {
 	}
 
 	// Build Payload
-	builder := NewMessageBuilder(app.GitHubAPI, app.UsersManager)
+	builder := NewMessageBuilderForReviews(app.GitHubAPI, app.UsersManager)
 
 	var payload slackposter.Payload
 	payload.Channel = app.Slack.Channel
@@ -93,23 +95,19 @@ func (app App) Run() int {
 		if err != nil {
 			return ExitCodeError
 		}
-		fmt.Println("reviewers: ", reviewers)
 
 		reviews, err := app.GitHubAPI.GetReviews(pull)
 		if err != nil {
 			return ExitCodeError
 		}
-		fmt.Println("reviews: ", reviews)
 
-		// field, attachmentType := builder.BuildField(pull, comments)
-		// fieldsMap[attachmentType] = append(fieldsMap[attachmentType], field)
+		field, attachmentType := builder.BuildField(pull, reviewers, reviews)
+		fieldsMap[attachmentType] = append(fieldsMap[attachmentType], field)
 	}
-
-	return ExitCodeOK
 
 	// Prepare attachments
 	var attachments []slackposter.Attachment
-	for i := MERGE; i < ASSIGNEE+1; i++ {
+	for i := MERGE; i < REQUEST_CHANGE+1; i++ {
 		if len(fieldsMap[i]) == 0 {
 			continue
 		}
@@ -120,6 +118,9 @@ func (app App) Run() int {
 		attachments = append(attachments, attachment)
 	}
 	payload.Attachments = attachments
+
+	fmt.Println(payload)
+	return ExitCodeOK
 
 	// Post payload
 	err = app.Slack.PostPayload(payload)
