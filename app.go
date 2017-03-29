@@ -119,9 +119,6 @@ func (app App) Run() int {
 	}
 	payload.Attachments = attachments
 
-	fmt.Println(payload)
-	return ExitCodeOK
-
 	// Post payload
 	err = app.Slack.PostPayload(payload)
 	if err != nil {
