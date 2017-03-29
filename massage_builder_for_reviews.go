@@ -140,7 +140,7 @@ func (builder MessageBuilderForReviews) BuildAttachmentWithType(attachmentType A
 		message = ":+1::+1: *マージお願いします*"
 	case REVIEW_ONE:
 		color = "warning"
-		message = ":+1: *レビューお願いします！*"
+		message = ":smiley: *レビューお願いします！*"
 	case REVIEWERS:
 		color = "danger"
 		message = ":sweat_smile: *Reviewers の指定をお願いします！*"
