@@ -58,6 +58,10 @@ func (config *Config) validate() error {
 		fmt.Fprintln(os.Stderr, "Invalid value: github.comment.per_page. (min 30)")
 		config.GitHub.Comment.PerPage = 30
 	}
+	if config.GitHub.MinimumApproved < 1 {
+		fmt.Fprintln(os.Stderr, "Invalid value: github.minimum_approved. (min 1)")
+		config.GitHub.MinimumApproved = 1
+	}
 	if len(config.SlackWebhooks) < config.SlackWebhooksIndex+1 {
 		fmt.Fprintln(os.Stderr, "Invalid slack webhooks index:", config.SlackWebhooksIndex)
 		return ErrInvalidSlackWebhooksIndex
