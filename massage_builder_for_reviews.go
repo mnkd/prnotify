@@ -7,9 +7,10 @@ import (
 )
 
 type MessageBuilderForReviews struct {
-	GitHubOwner  string
-	GitHubRepo   string
-	UsersManager UsersManager
+	GitHubOwner     string
+	GitHubRepo      string
+	UsersManager    UsersManager
+	MinimumApproved int
 }
 
 func (builder MessageBuilderForReviews) fieldTitleString(pull PullRequest) string {
@@ -103,13 +104,11 @@ func (builder MessageBuilderForReviews) BuildField(pull PullRequest, reviewers [
 	pullUsername := builder.UsersManager.ConvertGitHubToSlack(pull.User.Login)
 	name := ""
 
-	minApproveRequirement := 1
-
 	if len(reviewers) == 0 {
 		attachmentType = REVIEWERS
 		name = "@" + pullUsername
 	} else {
-		if len(approvedUsers) >= minApproveRequirement {
+		if len(approvedUsers) >= builder.MinimumApproved {
 			attachmentType = MERGE
 			name = "@" + pullUsername
 		} else if len(changeRequestedUsers) > 0 {
@@ -163,10 +162,11 @@ func (builder MessageBuilderForReviews) BuildAttachmentWithType(attachmentType A
 	return attachment
 }
 
-func NewMessageBuilderForReviews(gh GitHubAPI, usersManager UsersManager) MessageBuilderForReviews {
+func NewMessageBuilderForReviews(gh GitHubAPI, usersManager UsersManager, config Config) MessageBuilderForReviews {
 	return MessageBuilderForReviews{
-		GitHubOwner:  gh.Owner,
-		GitHubRepo:   gh.Repo,
-		UsersManager: usersManager,
+		GitHubOwner:     gh.Owner,
+		GitHubRepo:      gh.Repo,
+		UsersManager:    usersManager,
+		MinimumApproved: config.GitHub.MinimumApproved,
 	}
 }

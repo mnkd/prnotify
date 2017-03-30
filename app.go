@@ -67,7 +67,7 @@ func (app App) Run() int {
 	}
 
 	// Build Payload
-	builder := NewMessageBuilderForReviews(app.GitHubAPI, app.UsersManager)
+	builder := NewMessageBuilderForReviews(app.GitHubAPI, app.UsersManager, app.Config)
 
 	var payload slackposter.Payload
 	payload.Channel = app.Slack.Channel

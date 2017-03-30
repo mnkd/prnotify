@@ -21,10 +21,11 @@ type Config struct {
 		UseDayOff    bool `json:"use_dayoff"`
 	} `json:"app"`
 	GitHub struct {
-		AccessToken string `json:"access_token"`
-		Owner       string `json:"owner"`
-		Repo        string `json:"repo"`
-		Comment     struct {
+		AccessToken     string `json:"access_token"`
+		Owner           string `json:"owner"`
+		Repo            string `json:"repo"`
+		MinimumApproved int    `json:"minimum_approved"`
+		Comment         struct {
 			PerPage int `json:"per_page"`
 		} `json:"comment"`
 	} `json:"github"`
