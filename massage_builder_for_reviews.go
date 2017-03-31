@@ -104,15 +104,15 @@ func (builder MessageBuilderForReviews) BuildField(pull PullRequest, reviewers [
 	pullUsername := builder.UsersManager.ConvertGitHubToSlack(pull.User.Login)
 	name := ""
 
-	if len(reviewers) == 0 {
-		attachmentType = REVIEWERS
+	if len(approvedUsers) >= builder.MinimumApproved {
+		attachmentType = MERGE
+		name = "@" + pullUsername
+	} else if len(changeRequestedUsers) > 0 {
+		attachmentType = REQUEST_CHANGE
 		name = "@" + pullUsername
 	} else {
-		if len(approvedUsers) >= builder.MinimumApproved {
-			attachmentType = MERGE
-			name = "@" + pullUsername
-		} else if len(changeRequestedUsers) > 0 {
-			attachmentType = REQUEST_CHANGE
+		if len(reviewers) == 0 {
+			attachmentType = REVIEWERS
 			name = "@" + pullUsername
 		} else {
 			attachmentType = REVIEW_ONE
