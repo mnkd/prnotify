@@ -27,7 +27,7 @@ const (
 	REVIEW_TWO
 	ASSIGNEE
 	REVIEWERS
-	REQUEST_CHANGE
+	CHANGES_REQUESTED
 )
 
 func isHoliday() bool {
@@ -107,7 +107,7 @@ func (app App) Run() int {
 
 	// Prepare attachments
 	var attachments []slackposter.Attachment
-	for i := MERGE; i < REQUEST_CHANGE+1; i++ {
+	for i := MERGE; i < CHANGES_REQUESTED+1; i++ {
 		if len(fieldsMap[i]) == 0 {
 			continue
 		}

@@ -74,28 +74,28 @@ func (usernames Usernames) isContain(username string) bool {
 
 func (builder MessageBuilderForReviews) BuildField(pull PullRequest, reviewers []RequestedReviewer, reviews []Review) (slackposter.Field, AttachmentType) {
 	var approvedUsers Usernames
-	var changeRequestedUsers Usernames
+	var changesRequestedUsers Usernames
 
 	for _, review := range reviews {
 		username := builder.UsersManager.ConvertGitHubToSlack(review.User.Login)
 		if review.IsApproved() {
 			approvedUsers = append(approvedUsers, username)
 
-		} else if review.IsRequestedChanged() {
-			changeRequestedUsers = append(changeRequestedUsers, username)
+		} else if review.IsChangesRequested() {
+			changesRequestedUsers = append(changesRequestedUsers, username)
 		}
 	}
 
 	var unreviewUsers Usernames
 	for _, reviewer := range reviewers {
 		username := builder.UsersManager.ConvertGitHubToSlack(reviewer.Login)
-		if !approvedUsers.isContain(username) && !changeRequestedUsers.isContain(username) {
+		if !approvedUsers.isContain(username) && !changesRequestedUsers.isContain(username) {
 			unreviewUsers = append(unreviewUsers, username)
 		}
 	}
 
 	fmt.Println("approvedUsers:", approvedUsers)
-	fmt.Println("changeRequestedUsers:", changeRequestedUsers)
+	fmt.Println("changesRequestedUsers:", changesRequestedUsers)
 	fmt.Println("unreviewUsers:", unreviewUsers)
 
 	var attachmentType AttachmentType
@@ -107,8 +107,8 @@ func (builder MessageBuilderForReviews) BuildField(pull PullRequest, reviewers [
 	if len(approvedUsers) >= builder.MinimumApproved {
 		attachmentType = MERGE
 		name = "@" + pullUsername
-	} else if len(changeRequestedUsers) > 0 {
-		attachmentType = REQUEST_CHANGE
+	} else if len(changesRequestedUsers) > 0 {
+		attachmentType = CHANGES_REQUESTED
 		name = "@" + pullUsername
 	} else {
 		if len(reviewers) == 0 {
@@ -143,7 +143,7 @@ func (builder MessageBuilderForReviews) BuildAttachmentWithType(attachmentType A
 	case REVIEWERS:
 		color = "danger"
 		message = ":sweat_smile: *Reviewers の指定をお願いします！*"
-	case REQUEST_CHANGE:
+	case CHANGES_REQUESTED:
 		color = "danger"
 		message = ":wink: *コードの修正をお願いします！*"
 	}

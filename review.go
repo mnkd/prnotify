@@ -60,6 +60,6 @@ func (review Review) IsApproved() bool {
 	return review.State == "APPROVED"
 }
 
-func (review Review) IsRequestedChanged() bool {
-	return review.State == "REQUESTED_CHANGED"
+func (review Review) IsChangesRequested() bool {
+	return review.State == "CHANGES_REQUESTED"
 }
