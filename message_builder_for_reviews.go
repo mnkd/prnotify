@@ -21,14 +21,14 @@ func (builder MessageBuilderForReviews) fieldValueString(pull PullRequest) strin
 	return fmt.Sprintf("<%s|%s> by %s", pull.HTMLURL, pull.Title, pull.User.Login)
 }
 
-func (builder MessageBuilderForReviews) allReviewersString(pull PullRequest, reviewers []RequestedReviewer) string {
-	if len(reviewers) == 0 {
+func (builder MessageBuilderForReviews) allReviewersString(pull PullRequest, requestedReviewers []RequestedReviewer) string {
+	if len(requestedReviewers) == 0 {
 		name := builder.UsersManager.ConvertGitHubToSlack(pull.User.Login)
 		return "@" + name + " *Reviewers の指定をお願いします*"
 	}
 
 	var str = ""
-	for _, reviewer := range reviewers {
+	for _, reviewer := range requestedReviewers {
 		name := builder.UsersManager.ConvertGitHubToSlack(reviewer.Login)
 		str += "@" + name + " "
 	}
@@ -72,7 +72,17 @@ func (usernames Usernames) isContain(username string) bool {
 	return false
 }
 
-func (builder MessageBuilderForReviews) BuildField(pull PullRequest, reviewers []RequestedReviewer, reviews []Review) (slackposter.Field, AttachmentType) {
+func (builder MessageBuilderForReviews) isRequestedReviewerReview(review Review, requestedReviewers []RequestedReviewer) bool {
+	found := false
+	for _, requestedReviewer := range requestedReviewers {
+		if requestedReviewer.Login == review.User.Login {
+			return true
+		}
+	}
+	return found
+}
+
+func (builder MessageBuilderForReviews) BuildField(pull PullRequest, requestedReviewers []RequestedReviewer, reviews []Review) (slackposter.Field, AttachmentType) {
 	var approvedUsers Usernames
 	var changesRequestedUsers Usernames
 
@@ -80,14 +90,17 @@ func (builder MessageBuilderForReviews) BuildField(pull PullRequest, reviewers [
 		username := builder.UsersManager.ConvertGitHubToSlack(review.User.Login)
 		if review.IsApproved() {
 			approvedUsers = append(approvedUsers, username)
-
 		} else if review.IsChangesRequested() {
-			changesRequestedUsers = append(changesRequestedUsers, username)
+			// 過去に changes_requested している reviewer が再度 requested_reviewer に指定された場合は、
+			// changesRequestedUsers に append しない。
+			if builder.isRequestedReviewerReview(review, requestedReviewers) == false {
+				changesRequestedUsers = append(changesRequestedUsers, username)
+			}
 		}
 	}
 
 	var unreviewUsers Usernames
-	for _, reviewer := range reviewers {
+	for _, reviewer := range requestedReviewers {
 		username := builder.UsersManager.ConvertGitHubToSlack(reviewer.Login)
 		if !approvedUsers.isContain(username) && !changesRequestedUsers.isContain(username) {
 			unreviewUsers = append(unreviewUsers, username)
@@ -111,7 +124,7 @@ func (builder MessageBuilderForReviews) BuildField(pull PullRequest, reviewers [
 		attachmentType = CHANGES_REQUESTED
 		name = "@" + pullUsername
 	} else {
-		if len(reviewers) == 0 {
+		if len(requestedReviewers) == 0 {
 			attachmentType = REVIEWERS
 			name = "@" + pullUsername
 		} else {
