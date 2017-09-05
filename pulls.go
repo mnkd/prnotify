@@ -8,26 +8,26 @@ import (
 	"os"
 )
 
+type PullRequestUser struct {
+	AvatarURL string `json:"avatar_url"`
+	Login     string `json:"login"`
+}
+
 type PullRequest struct {
-	Assignees []struct {
-		AvatarUrl string `json:"avatar_url"`
-		Login     string `json:"login"`
-	} `json:"assignees"`
-	ClosedAt  interface{} `json:"closed_at"`
-	CreatedAt string      `json:"created_at"`
-	HTMLURL   string      `json:"html_url"`
-	ID        int64       `json:"id"`
-	IssueURL  string      `json:"issue_url"`
-	Number    int64       `json:"number"`
-	State     string      `json:"state"`
-	Title     string      `json:"title"`
-	UpdatedAt string      `json:"updated_at"`
-	URL       string      `json:"url"`
-	User      struct {
-		AvatarUrl string `json:"avatar_url"`
-		Login     string `json:"login"`
-	} `json:"user"`
-	Links struct {
+	Assignees          []PullRequestUser `json:"assignees"`
+	RequestedReviewers []PullRequestUser `json:"requested_reviewers"`
+	ClosedAt           interface{}       `json:"closed_at"`
+	CreatedAt          string            `json:"created_at"`
+	HTMLURL            string            `json:"html_url"`
+	ID                 int64             `json:"id"`
+	IssueURL           string            `json:"issue_url"`
+	Number             int64             `json:"number"`
+	State              string            `json:"state"`
+	Title              string            `json:"title"`
+	UpdatedAt          string            `json:"updated_at"`
+	URL                string            `json:"url"`
+	User               PullRequestUser   `json:"user"`
+	Links              struct {
 		Comments struct {
 			Href string `json:"href"`
 		} `json:"comments"`
