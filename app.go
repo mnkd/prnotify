@@ -23,11 +23,9 @@ type AttachmentType int
 
 const (
 	MERGE AttachmentType = iota
-	REVIEW_ONE
-	REVIEW_TWO
-	ASSIGNEE
-	REVIEWERS
-	CHANGES_REQUESTED
+	REVIEW
+	CHECK
+	ASSIGN_REVIEWER
 )
 
 func isHoliday() bool {
@@ -67,7 +65,7 @@ func (app App) Run() int {
 	}
 
 	// Build Payload
-	builder := NewMessageBuilderForReviews(app.GitHubAPI, app.UsersManager, app.Config)
+	builder := NewMessageBuilder(app.GitHubAPI, app.UsersManager, app.Config)
 
 	var payload slackposter.Payload
 	payload.Channel = app.Slack.Channel
@@ -91,23 +89,18 @@ func (app App) Run() int {
 	for i, pull := range pulls {
 		fmt.Fprintf(os.Stdout, "%-2d #%d\n", i+1, pull.Number)
 
-		reviewers, err := app.GitHubAPI.GetRequestedReviewers(pull)
+		reviews, err := app.GitHubAPI.GetReviewsWithPullRequest(pull)
 		if err != nil {
 			return ExitCodeError
 		}
 
-		reviews, err := app.GitHubAPI.GetReviews(pull)
-		if err != nil {
-			return ExitCodeError
-		}
-
-		field, attachmentType := builder.BuildField(pull, reviewers, reviews)
+		field, attachmentType := builder.BuildField(pull, reviews)
 		fieldsMap[attachmentType] = append(fieldsMap[attachmentType], field)
 	}
 
 	// Prepare attachments
 	var attachments []slackposter.Attachment
-	for i := MERGE; i < CHANGES_REQUESTED+1; i++ {
+	for i := MERGE; i < ASSIGN_REVIEWER+1; i++ {
 		if len(fieldsMap[i]) == 0 {
 			continue
 		}
