@@ -19,7 +19,7 @@ type Review struct {
 	State string `json:"state"`
 }
 
-func (gh GitHubAPI) GetReviews(pull PullRequest) ([]Review, error) {
+func (gh GitHubAPI) GetReviewsWithPullRequest(pull PullRequest) ([]Review, error) {
 	var reviews []Review
 
 	// Prepare HTTP Request
