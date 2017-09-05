@@ -13,7 +13,7 @@ import (
 
 type App struct {
 	Config       Config
-	Slack        slackposter.Slack
+	Slack        slackposter.SlackPoster
 	GitHubAPI    GitHubAPI
 	UsersManager UsersManager
 }
@@ -136,7 +136,7 @@ func NewApp(config Config) (App, error) {
 
 	app.GitHubAPI = NewGitHubAPI(config)
 	app.UsersManager, err = NewUsersManager()
-	app.Slack = slackposter.NewSlack(config.SlackWebhooks[config.SlackWebhooksIndex])
+	app.Slack = slackposter.NewSlackPoster(config.SlackWebhooks[config.SlackWebhooksIndex])
 	app.Slack.DryRun = config.DryRun
 
 	return app, err
