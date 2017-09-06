@@ -26,6 +26,16 @@ func UsernameFromRequestedReviewers(requestedReviewers []PullRequestUser) []stri
 	return array
 }
 
+func (usernames Usernames) remove(username string) []string {
+	result := []string{}
+	for _, v := range usernames {
+		if v != username {
+			result = append(result, v)
+		}
+	}
+	return result
+}
+
 type MessageBuilder struct {
 	GitHubOwner     string
 	GitHubRepo      string
@@ -109,8 +119,11 @@ func (builder MessageBuilder) BuildField(pull PullRequest, reviews []Review) (sl
 
 		if review.IsApproved() {
 			approvedUsers = append(approvedUsers, username)
+			notApprovedUsers = notApprovedUsers.remove(username)
+
 		} else if builder.isAssigneeReview(review, pull) == false &&
 			builder.isRequestedReviewerReview(review, pull) == false &&
+			approvedUsers.isContain(username) == false &&
 			notApprovedUsers.isContain(username) == false {
 			notApprovedUsers = append(notApprovedUsers, username)
 		}
@@ -131,6 +144,10 @@ func (builder MessageBuilder) BuildField(pull PullRequest, reviews []Review) (sl
 		name = "@" + pullUsername
 
 	} else if len(requestedReviewers) > 0 {
+		attachmentType = REVIEW
+		name = builder.reviewerString(pull, requestedReviewers) + " " + builder.reviewerString(pull, notApprovedUsers)
+
+	} else if len(approvedUsers) >= 1 {
 		attachmentType = REVIEW
 		name = builder.reviewerString(pull, requestedReviewers) + " " + builder.reviewerString(pull, notApprovedUsers)
 
