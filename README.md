@@ -19,7 +19,7 @@ $ prnotify
 ```
 
 ### Dry run
-- A dry run will not send any message to Slack.
+* A dry run will not send any message to Slack.
 
 ```
 $ prnotify -d
@@ -28,10 +28,10 @@ $ prnotify -d
 ## Configuration
 
 ### config.json
-- Required
-- Path `$HOME/.config/prnotify/config.json`
+* Required
+* Path `$HOME/.config/prnotify/config.json`
 
-```
+```json
 {
   "app": {
     "use_holiday_jp": true,
@@ -41,9 +41,7 @@ $ prnotify -d
     "access_token": "your access_token",
     "owner": "owner name",
     "repo": "repo name",
-    "comment": {
-       "per_page": 100
-    }
+    "minimum_approved": 2
   },
   "slack_webhooks": [
     {
@@ -58,11 +56,11 @@ $ prnotify -d
 ```
 
 ### users.json
-- Optional
-- Path `$HOME/.config/prnotify/users.json`
-- Dictionary for converting github username to slack username.
+* Optional
+* Path `$HOME/.config/prnotify/users.json`
+* Dictionary for converting github username to slack username.
 
-```
+```json
 {
   "github_username": "slack_username",
   "JohnnyAppleseed": "johnny",

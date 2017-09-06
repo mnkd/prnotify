@@ -21,18 +21,16 @@ type Config struct {
 		UseDayOff    bool `json:"use_dayoff"`
 	} `json:"app"`
 	GitHub struct {
-		AccessToken string `json:"access_token"`
-		Owner       string `json:"owner"`
-		Repo        string `json:"repo"`
-		Comment     struct {
-			PerPage int `json:"per_page"`
-		} `json:"comment"`
+		AccessToken     string `json:"access_token"`
+		Owner           string `json:"owner"`
+		Repo            string `json:"repo"`
+		MinimumApproved int    `json:"minimum_approved"`
 	} `json:"github"`
 	SlackWebhooks []struct {
 		Channel    string `json:"channel"`
 		IconEmoji  string `json:"icon_emoji"`
 		Username   string `json:"username"`
-		WebhookUrl string `json:"webhook_url"`
+		WebhookURL string `json:"webhook_url"`
 	} `json:"slack_webhooks"`
 
 	DryRun             bool
@@ -53,9 +51,9 @@ func (config *Config) validate() error {
 		fmt.Fprintln(os.Stderr, "Invalid config.json. You should set a github repo.")
 		return ErrInvalidJson
 	}
-	if config.GitHub.Comment.PerPage < 30 {
-		fmt.Fprintln(os.Stderr, "Invalid value: github.comment.per_page. (min 30)")
-		config.GitHub.Comment.PerPage = 30
+	if config.GitHub.MinimumApproved < 1 {
+		fmt.Fprintln(os.Stderr, "Invalid value: github.minimum_approved. (min 1)")
+		config.GitHub.MinimumApproved = 1
 	}
 	if len(config.SlackWebhooks) < config.SlackWebhooksIndex+1 {
 		fmt.Fprintln(os.Stderr, "Invalid slack webhooks index:", config.SlackWebhooksIndex)
