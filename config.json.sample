@@ -7,9 +7,7 @@
     "access_token": "your access_token",
     "owner": "owner name",
     "repo": "repo name",
-    "comment": {
-       "per_page": 100
-    }
+    "minimum_approved": 2
   },
   "slack_webhooks": [
     {

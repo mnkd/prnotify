@@ -25,9 +25,6 @@ type Config struct {
 		Owner           string `json:"owner"`
 		Repo            string `json:"repo"`
 		MinimumApproved int    `json:"minimum_approved"`
-		Comment         struct {
-			PerPage int `json:"per_page"`
-		} `json:"comment"`
 	} `json:"github"`
 	SlackWebhooks []struct {
 		Channel    string `json:"channel"`
@@ -53,10 +50,6 @@ func (config *Config) validate() error {
 	if len(config.GitHub.Repo) == 0 {
 		fmt.Fprintln(os.Stderr, "Invalid config.json. You should set a github repo.")
 		return ErrInvalidJson
-	}
-	if config.GitHub.Comment.PerPage < 30 {
-		fmt.Fprintln(os.Stderr, "Invalid value: github.comment.per_page. (min 30)")
-		config.GitHub.Comment.PerPage = 30
 	}
 	if config.GitHub.MinimumApproved < 1 {
 		fmt.Fprintln(os.Stderr, "Invalid value: github.minimum_approved. (min 1)")
