@@ -1,0 +1,6 @@
+github.com/mnkd/dayoff v0.0.0-20170127080352-9f06548b7f12 h1:hyuUaxl/r0GW/WNMv1H1YJl6qe1Ddko/bhNW+CxmPYY=
+github.com/mnkd/dayoff v0.0.0-20170127080352-9f06548b7f12/go.mod h1:lbJNrWmNO+k9rM1qb5Qfn+umC3BZNJtfFG3C/OPqn0M=
+github.com/mnkd/holidayJP v0.0.0-20170127082603-89e43d8e8131 h1:Bam0OmfcKxGyx+JNRnNu2g51v+AX7NASIeqzRp/tSi8=
+github.com/mnkd/holidayJP v0.0.0-20170127082603-89e43d8e8131/go.mod h1:o+vMK7yspQJAr3FA2GedHaV47lmX/CoycHZIVdN35Jk=
+github.com/mnkd/slackposter v1.0.0 h1:a2lCYNhpf3RAz9ZhwyzDFe3FDA+lIKIW2H0Mrz6qwu8=
+github.com/mnkd/slackposter v1.0.0/go.mod h1:BdbpyWjb36gYRfYxtssSn2dP3OWEwWCSjDeQwnVtyfs=
