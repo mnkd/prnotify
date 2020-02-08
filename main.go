@@ -21,10 +21,8 @@ var app App
 
 func init() {
 	var configPath string
-	var index int
 	var dryRun, version bool
 	flag.StringVar(&configPath, "c", "", "/path/to/config.json. (default: $HOME/.config/prnotify/config.json)")
-	flag.IntVar(&index, "swi", 0, "Slack Webhooks Index (default: 0)")
 	flag.BoolVar(&dryRun, "d", false, "A dry run will not send any message to Slack. (defualt: false)")
 	flag.BoolVar(&version, "v", false, "Print version.")
 	flag.Parse()
@@ -36,7 +34,7 @@ func init() {
 	}
 
 	// Prepare config
-	config, err := NewConfig(configPath, index, dryRun)
+	config, err := NewConfig(configPath, dryRun)
 	if err != nil {
 		os.Exit(ExitCodeError)
 	}

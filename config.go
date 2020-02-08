@@ -11,8 +11,7 @@ import (
 )
 
 var (
-	ErrInvalidJson               = errors.New("ErrInvalidJson")
-	ErrInvalidSlackWebhooksIndex = errors.New("ErrInvalidSlackWebhooksIndex")
+	ErrInvalidJson = errors.New("ErrInvalidJson")
 )
 
 type Config struct {
@@ -26,15 +25,14 @@ type Config struct {
 		Repo            string `json:"repo"`
 		MinimumApproved int    `json:"minimum_approved"`
 	} `json:"github"`
-	SlackWebhooks []struct {
+	SlackWebHook struct {
 		Channel    string `json:"channel"`
 		IconEmoji  string `json:"icon_emoji"`
 		Username   string `json:"username"`
 		WebhookURL string `json:"webhook_url"`
-	} `json:"slack_webhooks"`
+	} `json:"slack_webhook"`
 
-	DryRun             bool
-	SlackWebhooksIndex int
+	DryRun bool
 }
 
 func (config *Config) validate() error {
@@ -55,17 +53,12 @@ func (config *Config) validate() error {
 		fmt.Fprintln(os.Stderr, "Invalid value: github.minimum_approved. (min 1)")
 		config.GitHub.MinimumApproved = 1
 	}
-	if len(config.SlackWebhooks) < config.SlackWebhooksIndex+1 {
-		fmt.Fprintln(os.Stderr, "Invalid slack webhooks index:", config.SlackWebhooksIndex)
-		return ErrInvalidSlackWebhooksIndex
-	}
 
 	return nil
 }
 
-func NewConfig(path string, slackWebhooksIndex int, dryRun bool) (Config, error) {
+func NewConfig(path string, dryRun bool) (Config, error) {
 	var config Config
-	config.SlackWebhooksIndex = slackWebhooksIndex
 	config.DryRun = dryRun
 
 	usr, err := user.Current()
