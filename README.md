@@ -43,15 +43,13 @@ $ prnotify -d
     "repo": "repo name",
     "minimum_approved": 2
   },
-  "slack_webhooks": [
-    {
-      "team": "your-team",
-      "channel": "#your-project",
-      "username": "GitHub | Pull Requests",
-      "icon_emoji": ":octocat:",
-      "webhook_url": "https://hooks.slack.com/services/xxxxx/xxxxx/xxxxxx"
-    }
-  ]
+  "slack_webhooks": {
+    "team": "your-team",
+    "channel": "#your-project",
+    "username": "GitHub | Pull Requests",
+    "icon_emoji": ":octocat:",
+    "webhook_url": "https://hooks.slack.com/services/xxxxx/xxxxx/xxxxxx"
+  }
 }
 ```
 
