@@ -23,18 +23,12 @@ func (gh GitHubAPI) GetReviewsWithPullRequest(pull PullRequest) ([]Review, error
 	var reviews []Review
 
 	// Prepare HTTP Request
-	num := fmt.Sprintf("%d", pull.Number)
-	url := gh.BaseURL() + "/pulls/" + num + "/reviews" + "?access_token=" + gh.AccessToken
+	url := fmt.Sprintf("%s/pulls/%d/reviews", gh.BaseURL(), pull.Number)
 	req, err := http.NewRequest("GET", url, nil)
 
 	// Headers
 	req.Header.Add("Accept", "application/vnd.github.black-cat-preview+json")
-
-	parseFormErr := req.ParseForm()
-	if parseFormErr != nil {
-		fmt.Fprintln(os.Stderr, "GitHubAPI - Reviews: <error> parse http request form:", parseFormErr)
-		return reviews, parseFormErr
-	}
+	req.Header.Add("Authorization", fmt.Sprintf("token %s", gh.AccessToken))
 
 	// Fetch Request
 	client := &http.Client{}

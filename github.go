@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 type GitHubAPI struct {
 	AccessToken string
 	Owner       string
@@ -15,5 +19,5 @@ func NewGitHubAPI(config Config) GitHubAPI {
 }
 
 func (gh GitHubAPI) BaseURL() string {
-	return "https://api.github.com/repos/" + gh.Owner + "/" + gh.Repo
+	return fmt.Sprintf("https://api.github.com/repos/%s/%s", gh.Owner, gh.Repo)
 }
