@@ -41,14 +41,9 @@ func (gh GitHubAPI) GetPulls() ([]PullRequest, error) {
 	var pulls []PullRequest
 
 	// Prepare HTTP Request
-	url := gh.BaseURL() + "/pulls" + "?access_token=" + gh.AccessToken
+	url := fmt.Sprintf("%s/pulls", gh.BaseURL())
 	req, err := http.NewRequest("GET", url, nil)
-
-	parseFormErr := req.ParseForm()
-	if parseFormErr != nil {
-		fmt.Fprintln(os.Stderr, "GitHubAPI - PullRequest: <error> parse http request form:", parseFormErr)
-		return pulls, parseFormErr
-	}
+	req.Header.Add("Authorization", fmt.Sprintf("token %s", gh.AccessToken))
 
 	// Fetch Request
 	client := &http.Client{}
