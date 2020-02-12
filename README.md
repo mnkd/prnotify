@@ -43,7 +43,7 @@ $ prnotify -d
     "repo": "repo name",
     "minimum_approved": 2
   },
-  "slack_webhooks": {
+  "slack_webhook": {
     "team": "your-team",
     "channel": "#your-project",
     "username": "GitHub | Pull Requests",
